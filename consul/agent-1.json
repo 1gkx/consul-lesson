@@ -1,0 +1,14 @@
+{
+  "node_name": "agent-1",
+  "data_dir": "/consul/data",
+  "retry_join": [
+    "consul-server",
+    "consul-server2",
+    "consul-server3"
+  ],
+  "ports": {
+    "dns": 53
+  },
+  "datacenter": "dc-default",
+  "client_addr": "0.0.0.0"
+}

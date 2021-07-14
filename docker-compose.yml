@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  consul-server:
+    image: "consul:1.10.0"
+    hostname: consul-server
+    restart: always
+    volumes:
+      - "./consul/server.json:/consul/config/config.json:ro"
+    ports:
+      - "3400:8400"
+      - "3500:8500"
+      - "3502:8502"
+      - "3600:8600"
+      - "3600:8600/udp"
+    command: "agent -bootstrap-expect=3"
+
+  consul-server2:
+    image: "consul:1.10.0"
+    hostname: consul-server2
+    restart: always
+    volumes:
+      - ./consul/server2.json:/consul/config/config.json:ro
+    command: "agent -bootstrap-expect=3"
+  
+  consul-server3:
+    image: "consul:1.10.0"
+    restart: always
+    hostname: consul-server3
+    volumes:
+      - ./consul/server3.json:/consul/config/config.json:ro
+    command: "agent -bootstrap-expect=3"
+
+  # consul-agent:
+  #   restart: always
+  #   image: "consul:1.10.0"
+  #   volumes:
+  #     - ./consul/agent-1.json:/consul/config/config.json:ro
+  #     - ./consul/service.json:/consul/config/service.json:ro
+  #   command: "agent"
+
+  # consul-agent-2:
+  #   restart: always
+  #   image: "consul:1.10.0"
+  #   volumes:
+  #     - ./consul/agent-2.json:/consul/config/config.json:ro
+  #     - ./consul/service-2.json:/consul/config/service.json:ro
+  #   command: "agent"
+  
+  service-1:
+    build:
+      context: ./online-node
+    restart: always
+    volumes:
+      - ./consul/agent-1.json:/consul/config/config.json:ro
+    ports:
+      - 3010:3010
+    dns:
+      - 127.0.0.1
+    depends_on:
+      - consul-server
+      - consul-server2
+      - consul-server3
+
+  service-2:
+    build:
+      context: ./offline-node
+    restart: always
+    volumes:
+      - ./consul/agent-2.json:/consul/config/config.json:ro
+    ports:
+      - 3011:3011
+    dns:
+      - 127.0.0.1
+    depends_on:
+      - consul-server
+      - consul-server2
+      - consul-server3

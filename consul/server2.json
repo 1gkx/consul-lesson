@@ -1,0 +1,22 @@
+{
+  "node_name": "consul-server2",
+  "server": true,
+  "ui_config": {
+    "enabled" : true
+  },
+  "connect": {
+    "enabled": true
+  },
+  "data_dir": "/consul/data",
+  "addresses": {
+    "http" : "0.0.0.0"
+  },
+  "ports": {
+    "grpc": -1
+  },
+  "retry_join":[
+    "consul-server",
+    "consul-server3"
+  ],
+  "datacenter": "dc-default"
+}

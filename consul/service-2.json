@@ -1,0 +1,18 @@
+{
+  "services": [
+    {
+      "id": "2",
+      "name": "service-2",
+      "tags": ["service", "tcp", "2"],
+      "port": 3001,
+      "address": "service-2",
+      "check": {
+        "id": "2",
+        "name": "helthcheck-servcie-2",
+        "interval": "10s",
+        "timeout": "1s",
+        "tcp": "service-2:3001"
+      }
+    }
+  ]
+}
