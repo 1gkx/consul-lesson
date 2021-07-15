@@ -2,9 +2,9 @@
   "services": [
     {
       "id": "s2",
-      "name": "s-2",
-      "port": 3011,
-      "address": "service-2"
+      "name": "service-2",
+      "port": 80,
+      "address": "sv-2"
     }
   ]
 }

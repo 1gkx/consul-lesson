@@ -11,8 +11,8 @@ RUN curl -sSLo /tmp/consul.zip https://releases.hashicorp.com/consul/${CONSUL_VE
 WORKDIR /usr/app
 COPY . .
 RUN go mod download && go build main.go
-RUN chmod +x start.sh main
+RUN chmod +x start.sh && chmod +x main
 
-EXPOSE 3011
+EXPOSE 443
 
 ENTRYPOINT [ "./start.sh" ]

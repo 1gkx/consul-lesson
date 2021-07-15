@@ -56,7 +56,7 @@ func main() {
 		ID:      "service-2",
 		Name:    "service-2",
 		Address: getMyIP(),
-		Port:    3011,
+		Port:    443,
 	})
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -84,7 +84,7 @@ func main() {
 	})
 	// Creating an HTTP server that serves via Connect
 	server := &http.Server{
-		Addr:      ":3011",
+		Addr:      ":443",
 		TLSConfig: tls,
 		// ... other standard fields
 	}

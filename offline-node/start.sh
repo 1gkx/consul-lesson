@@ -1,4 +1,4 @@
 #!/bin/sh
 
-/bin/consul agent -config-dir=/consul/config
+/bin/consul agent -recursor=8.8.8.8 -config-dir=/consul/config
 /usr/app/main

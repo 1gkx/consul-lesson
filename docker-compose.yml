@@ -37,9 +37,9 @@ services:
     restart: always
     volumes:
       - ./consul/agent-1.json:/consul/config/config.json:ro
-      # - ./consul/service-1.json:/consul/config/service.json:ro
+      - ./consul/service-1.json:/consul/config/service.json:ro
     ports:
-      - 3010:3010
+      - 3010:80
     dns:
       - 127.0.0.1
     depends_on:
@@ -53,9 +53,9 @@ services:
     restart: always
     volumes:
       - ./consul/agent-2.json:/consul/config/config.json:ro
-      # - ./consul/service-2.json:/consul/config/service.json:ro
+      - ./consul/service-2.json:/consul/config/service.json:ro
     ports:
-      - 3011:3011
+      - 3011:443
     dns:
       - 127.0.0.1
     depends_on:
