@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"os"
 
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/go-cleanhttp"
@@ -35,7 +37,14 @@ func LoadTlsCredentialsFromBytes(
 	return tlsConfig, nil
 }
 
+func getMyIP() string {
+	host, _ := os.Hostname()
+	addrs, _ := net.LookupIP(host)
+	return addrs[0].String()
+}
+
 func main() {
+
 	// Create a Consul API client
 	client, _ := api.NewClient(&api.Config{
 		// Address: "consul-server:8500",
@@ -46,7 +55,8 @@ func main() {
 	err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
 		ID:      "service-2",
 		Name:    "service-2",
-		Address: "service-2:3011",
+		Address: getMyIP(),
+		Port:    3011,
 	})
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

@@ -30,22 +30,6 @@ services:
     volumes:
       - ./consul/server3.json:/consul/config/config.json:ro
     command: "agent -bootstrap-expect=3"
-
-  # consul-agent:
-  #   restart: always
-  #   image: "consul:1.10.0"
-  #   volumes:
-  #     - ./consul/agent-1.json:/consul/config/config.json:ro
-  #     - ./consul/service.json:/consul/config/service.json:ro
-  #   command: "agent"
-
-  # consul-agent-2:
-  #   restart: always
-  #   image: "consul:1.10.0"
-  #   volumes:
-  #     - ./consul/agent-2.json:/consul/config/config.json:ro
-  #     - ./consul/service-2.json:/consul/config/service.json:ro
-  #   command: "agent"
   
   service-1:
     build:
@@ -53,6 +37,7 @@ services:
     restart: always
     volumes:
       - ./consul/agent-1.json:/consul/config/config.json:ro
+      # - ./consul/service-1.json:/consul/config/service.json:ro
     ports:
       - 3010:3010
     dns:
@@ -68,6 +53,7 @@ services:
     restart: always
     volumes:
       - ./consul/agent-2.json:/consul/config/config.json:ro
+      # - ./consul/service-2.json:/consul/config/service.json:ro
     ports:
       - 3011:3011
     dns:

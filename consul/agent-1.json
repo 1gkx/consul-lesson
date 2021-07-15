@@ -9,6 +9,5 @@
   "ports": {
     "dns": 53
   },
-  "datacenter": "dc-default",
-  "client_addr": "0.0.0.0"
+  "datacenter": "dc-default"
 }

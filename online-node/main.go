@@ -7,26 +7,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"os"
 
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/go-cleanhttp"
 )
 
+func getMyIP() string {
+	host, _ := os.Hostname()
+	addrs, _ := net.LookupIP(host)
+	return addrs[0].String()
+}
+
 func main() {
 
-	client, _ := api.NewClient(&api.Config{
+	client, err := api.NewClient(&api.Config{
 		// Address: "consul-server:8500",
 		Address:   "localhost:8500",
 		Transport: cleanhttp.DefaultPooledTransport(),
 	})
+	if err != nil {
+		log.Fatalf("Start server failed: %v\n", err)
+	}
 
-	err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
+	if err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
 		ID:      "service-1",
 		Name:    "service-1",
-		Address: "service-1:3010",
-	})
-	if err != nil {
+		Address: getMyIP(),
+		Port:    3010,
+	}); err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
 	defer client.Agent().ServiceDeregister("service-1")
@@ -46,7 +57,7 @@ func main() {
 			},
 		}
 
-		resp, err := client.Get("http://service-2.service.consul")
+		resp, err := client.Get("https://service-2.service.consul:3011")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
