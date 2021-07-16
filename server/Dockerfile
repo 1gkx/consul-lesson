@@ -13,6 +13,6 @@ COPY . .
 RUN go mod download && go build main.go
 RUN chmod +x start.sh && chmod +x main
 
-EXPOSE 80
+EXPOSE 80 443
 
 ENTRYPOINT [ "./start.sh" ]

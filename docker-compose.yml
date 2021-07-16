@@ -31,15 +31,16 @@ services:
       - ./consul/server3.json:/consul/config/config.json:ro
     command: "agent -bootstrap-expect=3"
   
-  service-1:
+  demo-client:
     build:
-      context: ./online-node
+      context: ./client
     restart: always
     volumes:
       - ./consul/agent-1.json:/consul/config/config.json:ro
-      - ./consul/service-1.json:/consul/config/service.json:ro
+      - ./client/:/usr/app/
+      # - ./consul/service-1.json:/consul/config/service.json:ro
     ports:
-      - 3010:80
+      - 3010:443
     dns:
       - 127.0.0.1
     depends_on:
@@ -47,15 +48,16 @@ services:
       - consul-server2
       - consul-server3
 
-  service-2:
+  demo-server:
     build:
-      context: ./offline-node
+      context: ./server
     restart: always
     volumes:
-      - ./consul/agent-2.json:/consul/config/config.json:ro
-      - ./consul/service-2.json:/consul/config/service.json:ro
+      - ./consul/agent-1.json:/consul/config/config.json:ro
+      - ./server/:/usr/app/
+      # - ./consul/service-2.json:/consul/config/service.json:ro
     ports:
-      - 3011:443
+      - 3011:80
     dns:
       - 127.0.0.1
     depends_on:
