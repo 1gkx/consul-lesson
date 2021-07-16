@@ -23,8 +23,7 @@ func main() {
 
 	// Create a Consul API client
 	client, _ := api.NewClient(&api.Config{
-		Address: "consul-server:8500",
-		// Address:   "localhost:8500",
+		Address:   "consul-server:8500",
 		Transport: cleanhttp.DefaultPooledTransport(),
 	})
 
@@ -38,24 +37,6 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 	}
 	defer client.Agent().ServiceDeregister("server")
-
-	// q, _, _ := client.Agent().ConnectCARoots(&api.QueryOptions{})
-	// a, _, _ := client.Agent().ConnectCALeaf("server", &api.QueryOptions{})
-
-	// cert, err := tls.X509KeyPair([]byte(a.CertPEM), []byte(a.PrivateKeyPEM))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// CA_Pool := x509.NewCertPool()
-	// CA_Pool.AppendCertsFromPEM([]byte(q.Roots[0].RootCertPEM))
-	// config := &tls.Config{
-	// 	ClientAuth:   tls.RequireAndVerifyClientCert,
-	// 	Certificates: []tls.Certificate{cert},
-	// 	RootCAs:      CA_Pool,
-	// 	ClientCAs:    CA_Pool,
-	// 	// InsecureSkipVerify: true,
-	// }
 
 	svc, err := connect.NewService("server", client)
 	if err != nil {
@@ -81,16 +62,9 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write(msg)
 	})
-	// Creating an HTTP server that serves via Connect
-	// server := &http.Server{
-	// 	Addr:      ":443",
-	// 	TLSConfig: config,
-	// 	// ... other standard fields
-	// }
 
 	server := &http.Server{
-		Addr: ":443",
-		// Handler:   apiHandler{},
+		Addr:      ":443",
 		TLSConfig: svc.ServerTLSConfig(),
 	}
 
