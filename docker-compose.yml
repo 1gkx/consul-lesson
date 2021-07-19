@@ -53,11 +53,11 @@ services:
       context: ./server
     restart: always
     volumes:
-      - ./consul/agent-1.json:/consul/config/config.json:ro
+      - ./consul/agent-2.json:/consul/config/config.json:ro
       - ./server/:/usr/app/
       # - ./consul/service-2.json:/consul/config/service.json:ro
     ports:
-      - 3011:80
+      - 3011:443
     dns:
       - 127.0.0.1
     depends_on:

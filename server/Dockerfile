@@ -1,5 +1,6 @@
 FROM golang:1.16-alpine
 ENV CGO_ENABLED=0
+ENV GODEBUG=http2debug=2
 ENV CONSUL_VERSION=1.10.0
 
 RUN apk add --no-cache git python3 build-base gcc wget openssh openssh-client curl bind-tools

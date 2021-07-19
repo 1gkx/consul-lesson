@@ -10,5 +10,8 @@
   "ports": {
     "dns": 53
   },
+  "connect": {
+    "enabled": true
+  },
   "datacenter": "dc-default"
 }

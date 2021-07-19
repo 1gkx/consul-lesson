@@ -23,11 +23,21 @@ func getMyIP() string {
 func main() {
 
 	client, err := api.NewClient(&api.Config{
-		Address:   "consul-server:8500",
+		Address: "localhost:8500",
+		// Address:   "consul-server:8500",
 		Transport: cleanhttp.DefaultPooledTransport(),
 	})
 	if err != nil {
 		log.Fatalf("Start server failed: %v\n", err)
+	}
+
+	check := &api.AgentServiceCheck{
+		CheckID:       "check client",
+		Name:          "CheckName",
+		Interval:      "3s",
+		Timeout:       "15s",
+		TLSServerName: "client.service.consul",
+		TCP:           fmt.Sprintf("%s:%s", getMyIP(), "443"),
 	}
 
 	if err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
@@ -35,24 +45,30 @@ func main() {
 		Name:    "client",
 		Address: getMyIP(),
 		Port:    443,
+		Check:   check,
 	}); err != nil {
-		fmt.Printf("Error: %v\n", err)
+		log.Fatalf("Error: %v\n", err)
 	}
 	defer client.Agent().ServiceDeregister("client")
 
 	svc, _ := connect.NewService("client", client)
 	defer svc.Close()
 
-	resp, err := svc.HTTPClient().Get("https://server.service.consul")
-	if err != nil {
-		log.Fatalf("Request failed: %v\n", err)
-	}
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp, err := svc.HTTPClient().Get("https://server.service.consul")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	msg, _ := json.Marshal(map[string]string{
-		"Response": string(body),
+		body, _ := ioutil.ReadAll(resp.Body)
+		msg, _ := json.Marshal(map[string]string{
+			"Response": string(body),
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(msg)
 	})
-	fmt.Printf("Response: %v\n", msg)
 
 	if err := http.ListenAndServe(":443", nil); err != nil {
 		log.Fatal(err)

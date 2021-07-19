@@ -1,10 +1,20 @@
 {
   "services": [
     {
-      "id": "s2",
-      "name": "service-2",
-      "port": 80,
-      "address": "sv-2"
+      "id": "0000-0001",
+      "name": "server",
+      "port": 443,
+      "address": "server",
+      "connect": {
+        "native": true
+      },
+      "check": {
+        "id": "0000-0001",
+        "name": "check-server",
+        "interval": "10s",
+        "timeout": "5s",
+        "tcp": "server.service.consul:443"
+      }
     }
   ]
 }
