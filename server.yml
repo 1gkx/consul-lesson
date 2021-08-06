@@ -5,8 +5,8 @@ services:
     env_file: .env
     image: "consul:${CONSUL_VERSION}"
     volumes:
-      - ../consul/agent-1.json:/consul/config/config.json:ro
-      - ../consul/cert/:/consul/config/certs/
+      - ./consul/agent-1.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
     command: 'agent'
 
   demo-server:
