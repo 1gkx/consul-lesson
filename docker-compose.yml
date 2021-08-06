@@ -2,65 +2,84 @@ version: "3.8"
 
 services:
   consul-server:
-    image: "consul:1.10.0"
-    hostname: consul-server
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
     restart: always
     volumes:
-      - "./consul/server.json:/consul/config/config.json:ro"
+      - ./consul/server.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
     ports:
-      - "3400:8400"
       - "3500:8500"
-      - "3502:8502"
-      - "3600:8600"
-      - "3600:8600/udp"
     command: "agent -bootstrap-expect=3"
 
   consul-server2:
-    image: "consul:1.10.0"
-    hostname: consul-server2
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
     restart: always
     volumes:
       - ./consul/server2.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
     command: "agent -bootstrap-expect=3"
-  
+    depends_on:
+      - consul-server
+
   consul-server3:
-    image: "consul:1.10.0"
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
     restart: always
-    hostname: consul-server3
     volumes:
       - ./consul/server3.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
     command: "agent -bootstrap-expect=3"
-  
-  demo-client:
-    build:
-      context: ./client
-    restart: always
+    depends_on:
+      - consul-server
+      - consul-server2
+
+  demo-server-agent:
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
     volumes:
-      - ./consul/agent-1.json:/consul/config/config.json:ro
-      - ./client/:/usr/app/
-      # - ./consul/service-1.json:/consul/config/service.json:ro
-    ports:
-      - 3010:443
-    dns:
-      - 127.0.0.1
+      - ./consul/agent-2.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
+    command: 'agent'
     depends_on:
       - consul-server
       - consul-server2
       - consul-server3
 
   demo-server:
-    build:
-      context: ./server
     restart: always
+    image: golang:1.16-alpine
     volumes:
-      - ./consul/agent-2.json:/consul/config/config.json:ro
       - ./server/:/usr/app/
-      # - ./consul/service-2.json:/consul/config/service.json:ro
+    command: /bin/sh -c "cd /usr/app && go run /usr/app/main.go"
     ports:
-      - 3011:443
-    dns:
-      - 127.0.0.1
+      - "3010:3010"
     depends_on:
       - consul-server
       - consul-server2
       - consul-server3
+      - demo-server-agent
+
+  rabbitmq:
+    build: ./rabbit
+    volumes:
+      - ./rabbit/config/rabbit.conf:/etc/rabbitmq/rabbitmq.conf:ro
+
+  # demo-client:
+  #   build:
+  #     context: ./client
+  #   restart: always
+  #   volumes:
+  #     - ./consul/agent-1.json:/consul/config/config.json:ro
+  #     - ./client/:/usr/app/
+  #     - "./consul/cert/:/consul/config/certs/"
+  #     # - ./consul/service-1.json:/consul/config/service.json:ro
+  #   ports:
+  #     - 3010:443
+  #   depends_on:
+  #     - consul-server
+  #     - consul-server2
+  #     - consul-server3
+
+

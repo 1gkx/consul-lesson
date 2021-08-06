@@ -21,43 +21,47 @@ func getMyIP() string {
 
 func main() {
 
+	port := 3010
+
 	// Create a Consul API client
-	client, _ := api.NewClient(&api.Config{
-		Address:   "localhost:8500",
+	client, err := api.NewClient(&api.Config{
+		Address:   "demo-server-agent:8500",
 		Transport: cleanhttp.DefaultPooledTransport(),
 	})
-
-	check := &api.AgentServiceCheck{
-		CheckID:       "0000-0001",
-		Name:          "CheckName",
-		Interval:      "10s",
-		TLSSkipVerify: true,
-		TLSServerName: "server.service.consul",
-		TCP:           fmt.Sprintf("%s:%s", getMyIP(), "443"),
+	if err != nil {
+		panic(err)
 	}
 
-	err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
+	check := &api.AgentServiceCheck{
+		CheckID:  "0000-0001",
+		Name:     "CheckName",
+		Interval: "10s",
+		TLSSkipVerify: true,
+		TCP:           fmt.Sprintf("%s:%d", getMyIP(), port),
+	}
+
+	if err := client.Agent().ServiceRegister(&api.AgentServiceRegistration{
 		ID:      "server",
 		Name:    "server",
 		Address: getMyIP(),
-		Port:    443,
+		Port:    port,
 		Check:   check,
 		Connect: &api.AgentServiceConnect{
 			Native: true,
 		},
-	})
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+	}); err != nil {
+		log.Fatalf("Register service failed: %v\n", err)
 	}
 	defer unreg(client.Agent())
 
 	svc, err := connect.NewService("server", client)
 	if err != nil {
-		log.Fatalf("Register service failed: %v\n", err)
+		log.Fatalf("Get TLS config failed: %v\n", err)
 	}
 	defer svc.Close()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request: %+v\n", r)
 		msg, _ := json.Marshal(map[string]string{
 			"Response": "OK",
 		})
@@ -65,15 +69,13 @@ func main() {
 		w.Write(msg)
 	})
 
-	tls := svc.ServerTLSConfig()
-	tls.InsecureSkipVerify = true
 	server := &http.Server{
-		Addr:      ":443",
-		TLSConfig: tls,
+		Addr:      fmt.Sprintf(":%d", port),
+		TLSConfig: svc.ServerTLSConfig(),
 	}
 
 	// Serve!
-	if err := server.ListenAndServeTLS("", ""); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Start server failed: %v\n", err)
 	}
 }
