@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  consul-server:
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
+    restart: always
+    volumes:
+      - ./consul/server.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
+    ports:
+      - "3500:8500"
+    command: "agent -bootstrap-expect=3"
+
+  consul-server2:
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
+    restart: always
+    volumes:
+      - ./consul/server2.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
+    command: "agent -bootstrap-expect=3"
+    depends_on:
+      - consul-server
+
+  consul-server3:
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
+    restart: always
+    volumes:
+      - ./consul/server3.json:/consul/config/config.json:ro
+      - ./consul/cert/:/consul/config/certs/
+    command: "agent -bootstrap-expect=3"
+    depends_on:
+      - consul-server
+      - consul-server2
+
+

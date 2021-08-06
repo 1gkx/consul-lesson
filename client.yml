@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  demo-client-agent:
+    env_file: .env
+    image: "consul:${CONSUL_VERSION}"
+    volumes:
+      - ../consul/agent-2.json:/consul/config/config.json:ro
+      - ../consul/cert/:/consul/config/certs/
+    command: 'agent'
+
+  demo-client:
+    restart: always
+    image: golang:1.16-alpine
+    volumes:
+      - ./client/:/usr/app/
+    command: /bin/sh -c "cd /usr/app && go run /usr/app/main.go"
+    ports:
+      - "3011:3011"
+    depends_on:
+      - demo-client-agent

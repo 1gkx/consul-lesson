@@ -1,5 +1,5 @@
 {
-  "node_name": "agent-1",
+  "node_name": "agent-server",
   "data_dir": "/consul/data",
   "client_addr": "0.0.0.0",
   "log_level": "ERROR",
